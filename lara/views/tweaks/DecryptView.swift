@@ -263,13 +263,13 @@ struct DecryptView: View {
             try? fm.removeItem(atPath: workDir)
             try? fm.createDirectory(atPath: payloadDir, withIntermediateDirectories: true)
 
-            do {
-                try fm.copyItem(atPath: app.bundlepath, toPath: destAppPath)
-            } catch {
+            cpdir(app.bundlepath, destAppPath)
+            var dstSt = stat()
+            guard stat(destAppPath, &dstSt) == 0 else {
                 DispatchQueue.main.async {
                     decryptingbid = nil
-                    errormsg = "Failed to copy bundle: \(error.localizedDescription)"
-                    laramgr.shared.logmsg("(decrypt) copy failed: \(error.localizedDescription)")
+                    errormsg = "Failed to copy bundle, some files may be inaccessible."
+                    laramgr.shared.logmsg("(decrypt) copy failed: could not copy \(app.bundlepath)")
                 }
                 return
             }
@@ -398,5 +398,32 @@ struct AppRow: View {
             }
         }
         .opacity(isdecrypting ? 0.6 : 1.0)
+    }
+}
+
+func cpdir(_ src: String, _ dst: String) {
+    var isDir = ObjCBool(false)
+    let exists = FileManager.default.fileExists(atPath: src, isDirectory: &isDir)
+
+    if exists, !isDir.boolValue {
+        guard let handle = try? FileHandle(forReadingFrom: URL(fileURLWithPath: src)) else { return }
+        defer { try? handle.close() }
+        let data: Data
+        if #available(iOS 13.4, *) {
+            guard let d = try? handle.readToEnd() else { return }
+            data = d
+        } else {
+            data = handle.readDataToEndOfFile()
+        }
+        try? data.write(to: URL(fileURLWithPath: dst), options: .atomic)
+        return
+    }
+
+    guard exists, isDir.boolValue else { return }
+    try? FileManager.default.createDirectory(atPath: dst, withIntermediateDirectories: true)
+
+    guard let items = try? FileManager.default.contentsOfDirectory(atPath: src) else { return }
+    for item in items {
+        cpdir(src + "/" + item, dst + "/" + item)
     }
 }
