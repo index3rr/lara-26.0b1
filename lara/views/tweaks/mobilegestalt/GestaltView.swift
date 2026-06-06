@@ -154,7 +154,9 @@ struct GestaltView: View {
                         }
                         
                         Button(action: {
-                            Alertinator.shared.alert(title: "Device Spoofing Info", body: "Only spoof your device model if you want to download Apple Intelligence. This may break Face ID. If you decide to unspoof and want to keep Apple Intelligence, do NOT re-enter the Apple Intelligence & Siri menu in Settings.")
+                            Task { @MainActor in
+                                Alertinator.shared.alert(title: "Device Spoofing Info", body: "Only spoof your device model if you want to download Apple Intelligence. This may break Face ID. If you [...]")
+                            }
                         }) {
                             Image(systemName: "info.circle")
                                 .frame(width: 24, height: 22)
@@ -171,7 +173,7 @@ struct GestaltView: View {
                     if UIDevice.current.userInterfaceIdiom == .pad {
                         PlainToggle(text: "Stage Manager", icon: "squares.leading.rectangle", isOn: mgKeyBinding(["qeaj75wk3HF4DwQ8qbIi7g"]))
                     }
-                    PlainToggle(text: "iPadOS UI", icon: "ipad", infoType: .warning, infoMessage: "This is a very dangerous tweak to use! If you use an alphanumeric passcode, DO NOT USE THIS TWEAK AT ALL! Please do not turn off \"Show Dock In Stage Manager\" or your device will BOOTLOOP when rotating to landscape! With these two things in mind, you may experience general instability, or other major issues such as app data randomly disappearing. But I guess some funny multitasking features that still make the device relatively unusable are cool? Whatever dude, I'm not here to tell you how to use your own device.", isOn: mgTrollPadBinding())
+                    PlainToggle(text: "iPadOS UI", icon: "ipad", infoType: .warning, infoMessage: "This is a very dangerous tweak to use! If you use an alphanumeric passcode, DO NOT USE THIS TWEA[...]")
                         .disabled(cacheExtra?["+3Uf0Pm5F8Xy7Onyvko0vA"] as? String != "iPhone")
                 }
                 
@@ -366,7 +368,9 @@ struct GestaltView: View {
             print(mgCurrentDict.description)
             prepareGestaltData()
         } catch {
-            Alertinator.shared.alert(title: "Failed to load current MobileGestalt!", body: "\(error)")
+            Task { @MainActor in
+                Alertinator.shared.alert(title: "Failed to load current MobileGestalt!", body: "\(error)")
+            }
         }
     }
     
@@ -408,7 +412,9 @@ struct GestaltView: View {
                 mgDeviceName = deviceName
             }
         } catch {
-            Alertinator.shared.alert(title: "Failed to load data from MobileGestalt!", body: "Please restart the app and try again.\n\nError: \(error)")
+            Task { @MainActor in
+                Alertinator.shared.alert(title: "Failed to load data from MobileGestalt!", body: "Please restart the app and try again.\n\nError: \(error)")
+            }
         }
     }
     
@@ -439,12 +445,16 @@ struct GestaltView: View {
             let result = mgr.lara_overwritefile(target: mgCurrentPath, data: mgData, fallback_vfs: false)
             
             if result.ok {
-                Alertinator.shared.alert(title: "Successfully applied MobileGestalt!", body: "Respring to see any changes", actionLabel: "Respring", action: { mgr.respring() })
+                Task { @MainActor in
+                    Alertinator.shared.alert(title: "Successfully applied MobileGestalt!", body: "Respring to see any changes", actionLabel: "Respring", action: { mgr.respring() })
+                }
             } else {
                 throw "Overwrite failed: \(result.message)"
             }
         } catch {
-            Alertinator.shared.alert(title: "Failed to overwrite MobileGestalt!", body: "\(error)")
+            Task { @MainActor in
+                Alertinator.shared.alert(title: "Failed to overwrite MobileGestalt!", body: "\(error)")
+            }
         }
     }
     
@@ -461,12 +471,14 @@ struct GestaltView: View {
                 throw "No MobileGestalt file found!"
             }
         } catch {
-            Alertinator.shared.alert(title: "Failed to restore MobileGestalt!", body: "\(error)")
+            Task { @MainActor in
+                Alertinator.shared.alert(title: "Failed to restore MobileGestalt!", body: "\(error)")
+            }
         }
     }
     
     func isDeviceNotBroke() -> Bool {
-        let supportedDevices: [String] = ["iPhone15,2", "iPhone15,3", "iPhone15,4", "iPhone15,5", "iPhone16,1", "iPhone16,2", "iPhone17,3", "iPhone17,4", "iPhone17,1", "iPhone17,2", "iPhone18,3", "iPhone18,1", "iPhone18,2", "iPhone17,5"]
+        let supportedDevices: [String] = ["iPhone15,2", "iPhone15,3", "iPhone15,4", "iPhone15,5", "iPhone16,1", "iPhone16,2", "iPhone17,3", "iPhone17,4", "iPhone17,1", "iPhone17,2", "iPhone18,3",[...]]
         if supportedDevices.contains(machineName()) && doubleSystemVersion() < 19.0 {
             return true
         }
@@ -535,7 +547,9 @@ struct GestaltView: View {
             return false
         }, set: { enabled in
             if enabled {
-                Alertinator.shared.alert(title: "Warning!", body: "This is a very dangerous tweak to use! If you use an alphanumeric passcode, DO NOT USE THIS TWEAK AT ALL! Please do not turn off \"Show Dock In Stage Manager\" or your device will BOOTLOOP when rotating to landscape! With these two things in mind, you may experience general instability, or other major issues such as app data randomly disappearing. But I guess some funny multitasking features that still make the device relatively unusable are cool? Whatever dude, I'm not here to tell you how to use your own device.")
+                Task { @MainActor in
+                    Alertinator.shared.alert(title: "Warning!", body: "This is a very dangerous tweak to use! If you use an alphanumeric passcode, DO NOT USE THIS TWEAK AT ALL! Please do not turn off[...]")
+                }
             }
             cacheData.mutableBytes.storeBytes(of: enabled ? 3 : 1, toByteOffset: valueOffset, as: Int.self)
             for key in keys {
@@ -560,7 +574,9 @@ struct GestaltView: View {
             },
             set: { enabled in
                 if enabled {
-                    Alertinator.shared.alert(title: "Warning!", body: "Please do not use this feature to bypass region restrictions that would equate to breaking regional laws (e.g. disabling the camera shutter sound). We will NOT be held responsible for enabling any illegal activites!")
+                    Task { @MainActor in
+                        Alertinator.shared.alert(title: "Warning!", body: "Please do not use this feature to bypass region restrictions that would equate to breaking regional laws (e.g. disabling the[...]")
+                    }
                     cacheExtra["h63QSdBCiT/z0WU6rdQv6Q"] = "US"
                     cacheExtra["zHeENZu+wbg7PUprwNwBWg"] = "LL/A"
                 } else {
@@ -660,10 +676,12 @@ struct GestaltView: View {
                 )
 
                 if !result.ok {
-                    Alertinator.shared.alert(
-                        title: "Failed to Apply Tweak",
-                        body: result.message
-                    )
+                    Task { @MainActor in
+                        Alertinator.shared.alert(
+                            title: "Failed to Apply Tweak",
+                            body: result.message
+                        )
+                    }
                 }
             }
         )
@@ -736,6 +754,7 @@ func loadMutablePlistDictionary(from url: URL) throws -> NSMutableDictionary {
     return dict
 }
 
+@MainActor
 func verifyPlist(_ plist: Any, targetPath: String) throws -> Data {
     let fm = FileManager.default
     
@@ -789,3 +808,4 @@ func verifyPlist(_ plist: Any, targetPath: String) throws -> Data {
     
     return data
 }
+
