@@ -53,7 +53,7 @@ struct CardView: View {
         let oneditnum: (carditem) -> Void
         let previewimg: (carditem) -> UIImage?
 
-        @State private var selected: replaceoption? = nil
+        @State private var selectedRaw: String = ""
 
         var body: some View {
             Section(header: Text(card.bgfilename)) {
@@ -87,17 +87,17 @@ struct CardView: View {
                     Spacer()
                 }
 
-                Picker("Replace", selection: $selected) {
-                    Text("Select... ").tag(replaceoption?.none)
-                    ForEach(replaceoption.allCases) { option in
-                        Text(option.rawValue).tag(Optional(option))
+                Picker("Replace", selection: $selectedRaw) {
+                    Text("Select... ").tag("")
+                    ForEach(replaceoption.allCases, id: \.rawValue) { option in
+                        Text(option.rawValue).tag(option.rawValue)
                     }
                 }
                 .pickerStyle(MenuPickerStyle())
-                .onChange(of: selected) { option in
-                    guard let option = option else { return }
+                .onChange(of: selectedRaw) { rawValue in
+                    guard !rawValue.isEmpty, let option = replaceoption(rawValue: rawValue) else { return }
                     onreplace(card, option)
-                    selected = nil
+                    selectedRaw = ""
                 }
 
                 Button("Restore") {

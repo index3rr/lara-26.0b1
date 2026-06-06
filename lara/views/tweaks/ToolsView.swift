@@ -18,7 +18,7 @@ struct ToolsView: View {
     @State private var isaslr: Bool = aslrstate
     @State var showtoken: Bool = false
     @AppStorage("lara.sbx.issuedToken") private var token: String = ""
-    @State private var issueclass: tokenclass = .rw
+    @State private var issueclassRaw: String = tokenclass.rw.rawValue
     @State private var issuepath: String = "/"
     @State private var uid: uid_t = getuid()
     @State private var pid: pid_t = getpid()
@@ -221,9 +221,9 @@ struct ToolsView: View {
                     Text("Class:")
                     Spacer()
 
-                    Picker(" ", selection: $issueclass) {
+                    Picker(" ", selection: $issueclassRaw) {
                         ForEach(tokenclass.allCases) { tokenClass in
-                            Text(tokenClass.label).tag(tokenClass)
+                            Text(tokenClass.label).tag(tokenClass.rawValue)
                         }
                     }
                     .pickerStyle(.menu)
@@ -244,7 +244,7 @@ struct ToolsView: View {
                 }
 
                 Button {
-                    token = mgr.sbxissuetoken(extClass: issueclass.rawValue, path: issuepath) ?? ""
+                    token = mgr.sbxissuetoken(extClass: issueclassRaw, path: issuepath) ?? ""
                 } label: {
                     Text("Issue Token")
                 }

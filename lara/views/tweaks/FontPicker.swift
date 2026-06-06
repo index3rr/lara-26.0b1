@@ -38,7 +38,7 @@ struct FontPicker: View {
     @State private var customfonts: [importedfont] = load()
     @StateObject private var repostore = fontrepostore()
     @State private var showrepomgr = false
-    @State private var selectedTarget: styletarget = .standard
+    @State private var selectedTargetRaw: String = styletarget.standard.rawValue
     private let emojipath = "/System/Library/Fonts/CoreAddition/AppleColorEmoji-160px.ttc"
 
     var body: some View {
@@ -89,9 +89,9 @@ struct FontPicker: View {
                 }
 	                
                 Section {
-                    Picker("Target Style", selection: $selectedTarget) {
-                        ForEach(styletarget.allCases, id: \.self) { target in
-                            Text(target.rawValue).tag(target)
+                    Picker("Target Style", selection: $selectedTargetRaw) {
+                        ForEach(styletarget.allCases, id: \.rawValue) { target in
+                            Text(target.rawValue).tag(target.rawValue)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -106,7 +106,7 @@ struct FontPicker: View {
                                     save(customfonts)
                                     return
                                 }
-                                let success = mgr.vfsoverwritefromlocalpath(target: selectedTarget.path, source: font.path)
+                                let success = mgr.vfsoverwritefromlocalpath(target: styletarget(rawValue: selectedTargetRaw)?.path ?? laramgr.fontpath, source: font.path)
                                 success ? mgr.logmsg("font changed to \(font.name)") : mgr.logmsg("failed to change font")
                             } label: {
                                 Text(font.name)

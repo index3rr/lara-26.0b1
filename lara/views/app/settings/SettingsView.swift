@@ -30,7 +30,7 @@ enum logsdisplaymode: String, CaseIterable {
 struct SettingsView: View {
     @EnvironmentObject var mgr: laramgr
     
-    @AppStorage("selectedMethod") private var selectedMethod: method = .hybrid
+    @AppStorage("selectedMethod") private var selectedMethodRaw: String = method.hybrid.rawValue
     @AppStorage("keepAlive") private var keepAlive: Bool = false
     @AppStorage("stashKRW") private var stashKRW: Bool = false
     @AppStorage("keepSpringBoardRemoteCallAliveIOS16") private var keepSpringBoardRemoteCallAliveIOS16: Bool = false
@@ -41,11 +41,11 @@ struct SettingsView: View {
     @State private var showkcachetips: Bool = false
     @State private var stashingKRWNow: Bool = false
     
-    @AppStorage("logsdisplaymode") private var selectedlogdisplaymode: logsdisplaymode = .toolbar
+    @AppStorage("logsdisplaymode") private var selectedLogDisplayModeRaw: String = logsdisplaymode.toolbar.rawValue
     @AppStorage("loggerNoBS") private var loggerNoBS: Bool = true
     
     @AppStorage("showFMInTabs") private var showFMInTabs: Bool = true
-    @AppStorage("selectedFMAppsDisplayMode") private var selectedFMAppsDisplayMode: fmAppsDisplayMode = .appName
+    @AppStorage("selectedFMAppsDisplayMode") private var selectedFMAppsDisplayModeRaw: String = fmAppsDisplayMode.appName.rawValue
     @AppStorage("fmRecursiveSearch") private var fmRecursiveSearch: Bool = false
     
     @AppStorage("rcDockUnlimited") private var rcDockUnlimited: Bool = false
@@ -59,9 +59,9 @@ struct SettingsView: View {
                 }
                 
                 Section(header: HeaderLabel(text: "Exploit", icon: "ant")) {
-                    Picker("", selection: $selectedMethod) {
-                        ForEach(method.allCases, id: \.self) { method in
-                            Text(method.rawValue).tag(method)
+                    Picker("", selection: $selectedMethodRaw) {
+                        ForEach(method.allCases, id: \.rawValue) { m in
+                            Text(m.rawValue).tag(m.rawValue)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -184,18 +184,18 @@ struct SettingsView: View {
                             }
                         }
                     Toggle("Disable Log Dividers", isOn: $loggerNoBS)
-                    Picker("Logs Display", selection: $selectedlogdisplaymode) {
-                        ForEach(logsdisplaymode.allCases, id: \.self) { mode in
-                            Text(mode.rawValue).tag(mode)
+                    Picker("Logs Display", selection: $selectedLogDisplayModeRaw) {
+                        ForEach(logsdisplaymode.allCases, id: \.rawValue) { mode in
+                            Text(mode.rawValue).tag(mode.rawValue)
                         }
                     }
                     .pickerStyle(.menu)
                 }
                 
                 Section(header: HeaderLabel(text: "File Manager", icon: "folder"), footer: Text("Display Mode lets you change the way app folders get displayed in the file manager.")) {
-                    Picker("Display Mode", selection: $selectedFMAppsDisplayMode) {
-                        ForEach(fmAppsDisplayMode.allCases, id: \.self) { mode in
-                            Text(mode.rawValue).tag(mode)
+                    Picker("Display Mode", selection: $selectedFMAppsDisplayModeRaw) {
+                        ForEach(fmAppsDisplayMode.allCases, id: \.rawValue) { mode in
+                            Text(mode.rawValue).tag(mode.rawValue)
                         }
                     }
                     .pickerStyle(.menu)
