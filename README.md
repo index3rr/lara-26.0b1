@@ -2,11 +2,9 @@
   <br>
   <a href="https://discord.gg/gw8PcRF3Jr"><img src="https://github.com/rooootdev/lara/blob/main/lara.png?raw=true" alt="JESSI Logo" width="200"></a>
   <br>
-  <h1>LARA</h1>
+  <h1>LARA (BUT IT WORKS FO RME NOW)</h1>
 
-  <p>A customization toolbox that utilizes DarkSword. iOS 17.0 - iOS 18.7.1 & iOS 26.0.x, excluding M5 and A19.</p>
-  <p>iOS 16.7.2 has been tested on A12 (iPhone XS Max). Other iOS 16.x versions may also work, but have not been tested yet.</p>
-  <p>star this repo please :P</p>
+  <p> UR GONNA HAVE TO TO TO THE ACTIONTIONS PAGE TO GET THE IPA ITS AUTOBUILT WITH NEW COMMITS </p>
 </div>
 
 <p align="center">
