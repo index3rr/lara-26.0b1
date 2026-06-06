@@ -8,7 +8,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-enum taboptions {
+enum taboptions: Int, Hashable {
     case applying, tweaks, files, logs
 }
 
