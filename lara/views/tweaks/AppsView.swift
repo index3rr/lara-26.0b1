@@ -8,21 +8,13 @@
 import SwiftUI
 import Darwin
 
-struct scannedapp: Identifiable, Hashable {
+struct scannedapp: Identifiable {
     let id: String
     let name: String
     let bundleid: String
     let bundlepath: String
     let hasmobileprov: Bool
     let notbypassed: Bool
-
-    static func == (lhs: scannedapp, rhs: scannedapp) -> Bool {
-        return lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
 }
 
 struct AppsView: View {

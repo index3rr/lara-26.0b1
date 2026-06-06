@@ -8,7 +8,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-enum taboptions: Int, Hashable {
+enum taboptions: Int {
     case applying, tweaks, files, logs
 }
 
@@ -24,7 +24,7 @@ struct lara: App {
     @AppStorage("keepAlive") private var keepalive: Bool = false
     @AppStorage("showFMInTabs") private var showfmintabs: Bool = true
     @AppStorage("logsdisplaymode") private var logsdisplaymode: logsdisplaymode = .toolbar
-    @State private var selectedtab: taboptions = .applying
+    @State private var selectedTabIndex: Int = 0
     @State private var appInitialized: Bool = false
     
     init() {
@@ -49,44 +49,44 @@ struct lara: App {
             ZStack {
                 // Lazy load tabs to reduce metadata resolution at startup
                 // Workaround for iOS 26 beta Swift runtime bug in type metadata resolution
-                TabView(selection: $selectedtab) {
+                TabView(selection: $selectedTabIndex) {
                     ContentView()
                         .tabItem {
                             Image(systemName: "wrench.and.screwdriver.fill")
                         }
-                        .tag(taboptions.applying)
+                        .tag(0)
                     
                     // Defer TweaksView construction until needed or after init completes
-                    if selectedtab == .tweaks || appInitialized {
+                    if selectedTabIndex == 1 || appInitialized {
                         TweaksView(mgr: mgr)
                             .tabItem {
                                 Image(systemName: "ant.fill")
                             }
-                            .tag(taboptions.tweaks)
+                            .tag(1)
                     } else {
                         EmptyView()
                             .tabItem {
                                 Image(systemName: "ant.fill")
                             }
-                            .tag(taboptions.tweaks)
+                            .tag(1)
                     }
                     
                     // Defer file manager if enabled
-                    if showfmintabs && (selectedtab == .files || appInitialized) {
+                    if showfmintabs && (selectedTabIndex == 2 || appInitialized) {
                         SantanderView(startPath: "/")
                             .tabItem {
                                 Image(systemName: "folder.fill")
                             }
-                            .tag(taboptions.files)
+                            .tag(2)
                     }
                     
                     // Defer logs view
-                    if logsdisplaymode == .tabs && (selectedtab == .logs || appInitialized) {
+                    if logsdisplaymode == .tabs && (selectedTabIndex == 3 || appInitialized) {
                         LogsView(logger: globallogger)
                             .tabItem {
                                 Image(systemName: "terminal")
                             }
-                            .tag(taboptions.logs)
+                            .tag(3)
                     }
                 }
                 .environmentObject(mgr)

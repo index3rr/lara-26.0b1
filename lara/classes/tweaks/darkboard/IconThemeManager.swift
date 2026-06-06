@@ -9,21 +9,13 @@ private let processedThemesDir = iconThemeStorageRoot.appendingPathComponent("Pr
 private let originalIconsDir = iconThemeStorageRoot.appendingPathComponent("OriginalIconsBackup", isDirectory: true)
 private func clearIconCache() { LaraClearIconCache() }
 
-struct LaraIconTheme: Identifiable, Equatable, Hashable {
+struct LaraIconTheme: Identifiable {
     let name: String
     let iconCount: Int
 
     var id: String { name }
     var url: URL { rawThemesDir.appendingPathComponent(name, isDirectory: true) }
     var cacheURL: URL { processedThemesDir.appendingPathComponent(name, isDirectory: true) }
-
-    static func == (lhs: LaraIconTheme, rhs: LaraIconTheme) -> Bool {
-        return lhs.name == rhs.name
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-    }
 }
 
 struct LaraThemedIcon: Codable {
@@ -39,7 +31,7 @@ struct LaraThemedIcon: Codable {
     }
 }
 
-struct LaraThemedApp: Identifiable, Hashable {
+struct LaraThemedApp: Identifiable {
     let bundleIdentifier: String
     var name: String
     let version: String
@@ -48,14 +40,6 @@ struct LaraThemedApp: Identifiable, Hashable {
     var hiddenFromSpringboard: Bool
 
     var id: String { bundleIdentifier + "|" + bundleURL.path }
-
-    static func == (lhs: LaraThemedApp, rhs: LaraThemedApp) -> Bool {
-        return lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
 
     struct BackedUpPNG {
         let bundleIdentifier: String

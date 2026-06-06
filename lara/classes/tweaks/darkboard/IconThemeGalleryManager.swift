@@ -9,7 +9,7 @@ enum IconThemeGalleryFilter: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
-struct GalleryThemeContact: Codable, Hashable {
+struct GalleryThemeContact: Codable {
     let values: [String: String]
 
     init(from decoder: Decoder) throws {
@@ -25,17 +25,9 @@ struct GalleryThemeContact: Codable, Hashable {
     var displayName: String {
         values.values.first ?? "Unknown author"
     }
-
-    static func == (lhs: GalleryThemeContact, rhs: GalleryThemeContact) -> Bool {
-        return lhs.values == rhs.values
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(values)
-    }
 }
 
-struct GalleryTheme: Identifiable, Codable, Hashable {
+struct GalleryTheme: Identifiable, Codable {
     let name: String
     let description: String
     let url: String
@@ -44,14 +36,6 @@ struct GalleryTheme: Identifiable, Codable, Hashable {
     let version: String
 
     var id: String { name }
-
-    static func == (lhs: GalleryTheme, rhs: GalleryTheme) -> Bool {
-        return lhs.name == rhs.name
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-    }
 }
 
 @MainActor
