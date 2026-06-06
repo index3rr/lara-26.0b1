@@ -111,19 +111,3 @@ struct NotificationBG: ViewModifier {
     }
 }
 
-// Stub implementation to allow .glassEffect to compile
-public struct LiquidGlassStyle {
-    public static var clear: LiquidGlassStyle { LiquidGlassStyle() }
-    public static var regular: LiquidGlassStyle { LiquidGlassStyle() }
-    
-    public func interactive() -> LiquidGlassStyle {
-        return self
-    }
-}
-
-extension View {
-    public func glassEffect<S: Shape>(_ style: LiquidGlassStyle, in shape: S) -> some View {
-        // Fallback for the preview so it compiles
-        self.background(.ultraThinMaterial, in: shape)
-    }
-}

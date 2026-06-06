@@ -26,8 +26,7 @@ public struct FancyButtonStyle: PrimitiveButtonStyle {
                 .foregroundStyle(isEnabled ? color : .gray)
                 .frame(maxWidth: useFullWidth ? .infinity : nil)
                 .padding()
-                .background(isEnabled ? color.opacity(0.2) : Color(.systemGray).opacity(0.2), in: AnyShape(shape))
-                .background(.regularMaterial, in: AnyShape(shape))
+                .glassEffect(.regular.interactive().tint(isEnabled ? color.opacity(0.2) : Color(.systemGray).opacity(0.2)), in: AnyShape(shape))
                 .onTapGesture(perform: configuration.trigger)
         } else {
             configuration.label

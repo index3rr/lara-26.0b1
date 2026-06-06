@@ -65,7 +65,7 @@ public struct LinkCreditIcon: View {
                     .frame(width: 40, height: 40)
                     .background(Color(.systemGray6))
                     .clipShape(Circle())
-                    .background(.regularMaterial, in: Circle())
+                    .glassEffect(.regular, in: Circle())
             } placeholder: {
                 ProgressView()
                     .frame(width: 40, height: 40)
