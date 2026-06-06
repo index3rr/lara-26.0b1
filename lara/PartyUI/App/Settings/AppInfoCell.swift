@@ -39,7 +39,7 @@ public struct AppIcon: View {
                 .frame(width: 64, height: 64)
                 .background(Color(.systemGray6))
                 .clipShape(.rect(cornerRadius: 18))
-                .glassEffect(.regular, in: .rect(cornerRadius: 18))
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18))
         } else {
             image
                 .resizable()
