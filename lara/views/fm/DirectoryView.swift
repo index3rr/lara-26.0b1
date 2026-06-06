@@ -37,10 +37,14 @@ struct santanderitem: Identifiable, Hashable {
         self.display = display ?? name
     }
 
+    var type: UTType? {
+        let ext = (path as NSString).pathExtension
+        return ext.isEmpty ? nil : UTType(filenameExtension: ext)
+    }
+
     var icon: String {
         if isdir { return "folder.fill" }
-        let ext = (path as NSString).pathExtension
-        guard !ext.isEmpty, let type = UTType(filenameExtension: ext) else { return "doc" }
+        guard let type = type else { return "doc" }
         if type.isSubtype(of: .text) { return "doc.text" }
         if type.isSubtype(of: .image) { return "photo" }
         if type.isSubtype(of: .audio) { return "waveform" }
