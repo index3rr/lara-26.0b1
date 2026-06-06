@@ -16,7 +16,6 @@ struct santanderitem: Identifiable, Hashable {
     let isApp: Bool
     let appUDID: String
     let isdir: Bool
-    let type: UTType?
 
     var id: String { path }
 
@@ -36,13 +35,12 @@ struct santanderitem: Identifiable, Hashable {
         self.isApp = isApp
         self.appUDID = appUDID
         self.display = display ?? name
-        let ext = (path as NSString).pathExtension
-        self.type = ext.isEmpty ? nil : UTType(filenameExtension: ext)
     }
 
     var icon: String {
         if isdir { return "folder.fill" }
-        guard let type else { return "doc" }
+        let ext = (path as NSString).pathExtension
+        guard !ext.isEmpty, let type = UTType(filenameExtension: ext) else { return "doc" }
         if type.isSubtype(of: .text) { return "doc.text" }
         if type.isSubtype(of: .image) { return "photo" }
         if type.isSubtype(of: .audio) { return "waveform" }
