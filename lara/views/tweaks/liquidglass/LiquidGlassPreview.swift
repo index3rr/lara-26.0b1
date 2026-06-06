@@ -80,8 +80,10 @@ struct ActionBG: ViewModifier {
             }
         } else {
             if #available(iOS 19.0, *) {
-                content
-                    .glassEffect(.clear.interactive(), in: .capsule)
+                Group {
+                    content
+                }
+                .glassEffect(.regular, in: Capsule())
             }
         }
     }
@@ -104,8 +106,10 @@ struct NotificationBG: ViewModifier {
             }
         } else {
             if #available(iOS 19.0, *) {
-                content
-                    .glassEffect(.clear, in: .rect(cornerRadius: 26))
+                Group {
+                    content
+                }
+                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 26))
             }
         }
     }
