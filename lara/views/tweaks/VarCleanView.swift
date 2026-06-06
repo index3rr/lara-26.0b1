@@ -15,6 +15,14 @@ private struct varcleanmatch: Identifiable, Hashable {
     var isselected: Bool
 
     var id: String { path }
+
+    static func == (lhs: varcleanmatch, rhs: varcleanmatch) -> Bool {
+        return lhs.path == rhs.path
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(path)
+    }
 }
 
 private struct varcleangroup: Identifiable, Hashable {
@@ -22,6 +30,14 @@ private struct varcleangroup: Identifiable, Hashable {
     var items: [varcleanmatch]
 
     var id: String { path }
+
+    static func == (lhs: varcleangroup, rhs: varcleangroup) -> Bool {
+        return lhs.path == rhs.path
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(path)
+    }
 }
 
 struct VarCleanView: View {

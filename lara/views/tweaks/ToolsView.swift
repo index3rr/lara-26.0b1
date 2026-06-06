@@ -11,6 +11,14 @@ struct procentry: Identifiable, Hashable {
     let id = UUID()
     let pid: Int32
     let name: String
+
+    static func == (lhs: procentry, rhs: procentry) -> Bool {
+        return lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 struct ToolsView: View {

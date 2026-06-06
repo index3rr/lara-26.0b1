@@ -15,6 +15,14 @@ struct scannedapp: Identifiable, Hashable {
     let bundlepath: String
     let hasmobileprov: Bool
     let notbypassed: Bool
+
+    static func == (lhs: scannedapp, rhs: scannedapp) -> Bool {
+        return lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 struct AppsView: View {

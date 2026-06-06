@@ -20,6 +20,14 @@ struct santanderitem: Identifiable, Hashable {
 
     var id: String { path }
 
+    static func == (lhs: santanderitem, rhs: santanderitem) -> Bool {
+        return lhs.path == rhs.path
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(path)
+    }
+
     init(path: String, isdir: Bool, display: String? = nil, isApp: Bool = false, appUDID: String = "") {
         self.path = path
         self.isdir = isdir
