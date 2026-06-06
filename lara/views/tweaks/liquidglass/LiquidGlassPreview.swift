@@ -91,21 +91,20 @@ struct NotificationBG: ViewModifier {
     var lgDisabled: Bool
     var lgFallback: Bool
     
-    func body(content: Content) -> some View {
-        let erased = AnyView(content)
+    func body(content: Content) -> AnyView {
         if lgFallback && !lgDisabled {
-            erased
+            AnyView(content
                 .background(Color(.systemGray))
-                .clipShape(.rect(cornerRadius: 26))
+                .clipShape(.rect(cornerRadius: 26)))
         } else if lgDisabled {
-            erased
+            AnyView(content
                 .background(.black)
-                .clipShape(.rect(cornerRadius: 26))
+                .clipShape(.rect(cornerRadius: 26)))
         } else if #available(iOS 19.0, *) {
-            erased
-                .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 26))
+            AnyView(content
+                .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 26)))
         } else {
-            erased
+            AnyView(content)
         }
     }
 }
