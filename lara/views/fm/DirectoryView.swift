@@ -107,6 +107,16 @@ struct santanderdirview: View {
     let readsbx: Bool
     let writevfs: Bool
 
+    var body: some View {
+        SantanderDirBody(item: item, readsbx: readsbx, writevfs: writevfs)
+    }
+}
+
+private struct SantanderDirBody: View {
+    let item: santanderitem
+    let readsbx: Bool
+    let writevfs: Bool
+
     @EnvironmentObject private var nav: santandernav
     @ObservedObject private var clip = santanderclip.shared
     @AppStorage("fmRecursiveSearch") private var recsearch = false
@@ -132,7 +142,7 @@ struct santanderdirview: View {
     }
 
     var body: some View {
-        AnyView(List {
+        List {
             if model.loading && model.shownitems.isEmpty {
                 Section {
                     HStack {
@@ -385,7 +395,6 @@ struct santanderdirview: View {
         } message: {
             Text("This browser is powered by vfs namecache lookups, not full directory enumeration. Some folders may appear empty unless entries are already cached. Symlinks may also be shown as files even when their targets are directories.")
         }
-        )
         .sheet(isPresented: $shownewfolder) {
             santandernamesheet(
                 title: "New Folder",
