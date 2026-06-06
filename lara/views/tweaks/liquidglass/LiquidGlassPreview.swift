@@ -28,7 +28,7 @@ struct LiquidGlassPreview: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(14)
-            .modifier(NotificationBG(lgDisabled: lgDisabled, lgFallback: lgFallback))
+            .notificationBG(lgDisabled: lgDisabled, lgFallback: lgFallback)
             
             HStack {
                 Image(systemName: "flashlight.off.fill")
@@ -36,14 +36,14 @@ struct LiquidGlassPreview: View {
                     .scaledToFit()
                     .frame(width: 26, height: 26)
                     .padding()
-                    .modifier(ActionBG(lgDisabled: lgDisabled, lgFallback: lgFallback))
+                    .actionBG(lgDisabled: lgDisabled, lgFallback: lgFallback)
                 Spacer()
                 Image(systemName: "camera.fill")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 26, height: 26)
                     .padding()
-                    .modifier(ActionBG(lgDisabled: lgDisabled, lgFallback: lgFallback))
+                    .actionBG(lgDisabled: lgDisabled, lgFallback: lgFallback)
             }
             .padding(.horizontal, 30)
             
@@ -63,48 +63,44 @@ struct LiquidGlassPreview: View {
     }
 }
 
-struct ActionBG: ViewModifier {
-    var lgDisabled: Bool
-    var lgFallback: Bool
-    
-    func body(content: Content) -> some View {
+extension View {
+    @ViewBuilder
+    func actionBG(lgDisabled: Bool, lgFallback: Bool) -> some View {
         if lgDisabled || lgFallback {
             if lgFallback && !lgDisabled {
-                content
+                self
                     .background(Color(.systemGray))
                     .clipShape(.capsule)
             } else {
-                content
+                self
                     .background(.ultraThinMaterial)
                     .clipShape(.capsule)
             }
         } else {
             if #available(iOS 19.0, *) {
-                content
+                self
                     .glassEffect(.clear.interactive(), in: Capsule())
+            } else {
+                self
             }
         }
     }
-}
-
-struct NotificationBG: ViewModifier {
-    var lgDisabled: Bool
-    var lgFallback: Bool
     
-    func body(content: Content) -> AnyView {
+    @ViewBuilder
+    func notificationBG(lgDisabled: Bool, lgFallback: Bool) -> some View {
         if lgFallback && !lgDisabled {
-            return AnyView(content
+            self
                 .background(Color(.systemGray))
-                .clipShape(.rect(cornerRadius: 26)))
+                .clipShape(.rect(cornerRadius: 26))
         } else if lgDisabled {
-            return AnyView(content
+            self
                 .background(.black)
-                .clipShape(.rect(cornerRadius: 26)))
+                .clipShape(.rect(cornerRadius: 26))
         } else if #available(iOS 19.0, *) {
-            return AnyView(content
-                .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 26)))
+            self
+                .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 26))
         } else {
-            return AnyView(content)
+            self
         }
     }
 }
