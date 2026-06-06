@@ -367,31 +367,39 @@ private struct SantanderDirBody: View {
         } message: {
             Text("Delete \(delitem?.name ?? "item")?")
         }
-        .sheet(item: $infoitem) { entry in
-            infosheetcontent(entry: entry)
-        }
-        .sheet(item: $renameitem) { entry in
-            santandernamesheet(
-                title: "Rename",
-                itemname: entry.name,
-                placeholder: entry.name,
-                actiontitle: "Rename"
-            ) { newname in
-                rename(entry, newname: newname)
+        .sheet(isPresented: .init(get: { infoitem != nil }, set: { if !$0 { infoitem = nil } })) {
+            if let entry = infoitem {
+                infosheetcontent(entry: entry)
             }
         }
-        .sheet(item: $chmoditem) { entry in
-            santanderchmodsheet(item: entry) { mode in
-                santanderfs.clearImmutableIfPossible(atPath: entry.path)
-                let ok = entry.path.withCString { apfs_mod($0, mode) == 0 }
-                alertTitle = "Chmod"; alertMessage = ok ? "Operation completed." : "Operation failed."; showAlert = true
+        .sheet(isPresented: .init(get: { renameitem != nil }, set: { if !$0 { renameitem = nil } })) {
+            if let entry = renameitem {
+                santandernamesheet(
+                    title: "Rename",
+                    itemname: entry.name,
+                    placeholder: entry.name,
+                    actiontitle: "Rename"
+                ) { newname in
+                    rename(entry, newname: newname)
+                }
             }
         }
-        .sheet(item: $chownitem) { entry in
-            santanderchownsheet(item: entry) { uid, gid in
-                santanderfs.clearImmutableIfPossible(atPath: entry.path)
-                let ok = entry.path.withCString { apfs_own($0, uid, gid) == 0 }
-                alertTitle = "Chown"; alertMessage = ok ? "Operation completed." : "Operation failed."; showAlert = true
+        .sheet(isPresented: .init(get: { chmoditem != nil }, set: { if !$0 { chmoditem = nil } })) {
+            if let entry = chmoditem {
+                santanderchmodsheet(item: entry) { mode in
+                    santanderfs.clearImmutableIfPossible(atPath: entry.path)
+                    let ok = entry.path.withCString { apfs_mod($0, mode) == 0 }
+                    alertTitle = "Chmod"; alertMessage = ok ? "Operation completed." : "Operation failed."; showAlert = true
+                }
+            }
+        }
+        .sheet(isPresented: .init(get: { chownitem != nil }, set: { if !$0 { chownitem = nil } })) {
+            if let entry = chownitem {
+                santanderchownsheet(item: entry) { uid, gid in
+                    santanderfs.clearImmutableIfPossible(atPath: entry.path)
+                    let ok = entry.path.withCString { apfs_own($0, uid, gid) == 0 }
+                    alertTitle = "Chown"; alertMessage = ok ? "Operation completed." : "Operation failed."; showAlert = true
+                }
             }
         }
         .alert("File Manager Info", isPresented: $showvfsinfo) {
