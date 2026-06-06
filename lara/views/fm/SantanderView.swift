@@ -60,6 +60,11 @@ struct SantanderView: View {
     }
 }
 
+struct SantanderNavItem: Hashable {
+    let path: String
+    let isdir: Bool
+}
+
 private struct santanderroot: View {
     let readsbx: Bool
     let writevfs: Bool
@@ -69,19 +74,19 @@ private struct santanderroot: View {
     init(startpath: String, readsbx: Bool, writevfs: Bool) {
         self.readsbx = readsbx
         self.writevfs = writevfs
-        _nav = StateObject(wrappedValue: santandernav(root: santanderitem(path: startpath, isdir: true)))
+        _nav = StateObject(wrappedValue: santandernav(root: SantanderNavItem(path: startpath, isdir: true)))
     }
 
     var body: some View {
         NavigationStack(path: $nav.stack) {
-            santanderdirview(item: nav.root, readsbx: readsbx, writevfs: writevfs)
+            santanderdirview(item: santanderitem(path: nav.root.path, isdir: nav.root.isdir), readsbx: readsbx, writevfs: writevfs)
                 .environmentObject(nav)
-                .navigationDestination(for: santanderitem.self) { item in
+                .navigationDestination(for: SantanderNavItem.self) { item in
                     if item.isdir {
-                        santanderdirview(item: item, readsbx: readsbx, writevfs: writevfs)
+                        santanderdirview(item: santanderitem(path: item.path, isdir: true), readsbx: readsbx, writevfs: writevfs)
                             .environmentObject(nav)
                     } else {
-                        santanderfileview(item: item, readsbx: readsbx, writevfs: writevfs)
+                        santanderfileview(item: santanderitem(path: item.path, isdir: false), readsbx: readsbx, writevfs: writevfs)
                     }
                 }
         }
@@ -89,14 +94,14 @@ private struct santanderroot: View {
 }
 
 final class santandernav: ObservableObject {
-    @Published var root: santanderitem
-    @Published var stack: [santanderitem] = []
+    @Published var root: SantanderNavItem
+    @Published var stack: [SantanderNavItem] = []
 
-    init(root: santanderitem) {
+    init(root: SantanderNavItem) {
         self.root = root
     }
 
-    func go(_ item: santanderitem) {
+    func go(_ item: SantanderNavItem) {
         root = item
         stack.removeAll()
     }

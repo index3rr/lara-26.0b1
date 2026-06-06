@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 import UniformTypeIdentifiers
 
-struct santanderitem: Identifiable, Hashable {
+struct santanderitem: Identifiable {
     let path: String
     let name: String
     let display: String
@@ -18,14 +18,6 @@ struct santanderitem: Identifiable, Hashable {
     let isdir: Bool
 
     var id: String { path }
-
-    static func == (lhs: santanderitem, rhs: santanderitem) -> Bool {
-        return lhs.path == rhs.path
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(path)
-    }
 
     init(path: String, isdir: Bool, display: String? = nil, isApp: Bool = false, appUDID: String = "") {
         self.path = path
@@ -158,7 +150,7 @@ struct santanderdirview: View {
                 Section {
                     ForEach(model.shownitems) { entry in
                         Button {
-                            nav.stack.append(entry)
+                            nav.stack.append(SantanderNavItem(path: entry.path, isdir: entry.isdir))
                         } label: {
                             row(entry: entry)
                         }
@@ -316,13 +308,13 @@ struct santanderdirview: View {
                     }
 
                     Button {
-                        nav.go(santanderitem(path: "/", isdir: true))
+                        nav.go(SantanderNavItem(path: "/", isdir: true))
                     } label: {
                         Label("Go to Root", systemImage: "externaldrive")
                     }
 
                     Button {
-                        nav.go(santanderitem(path: NSHomeDirectory(), isdir: true))
+                        nav.go(SantanderNavItem(path: NSHomeDirectory(), isdir: true))
                     } label: {
                         Label("Go to Home", systemImage: "house")
                     }
