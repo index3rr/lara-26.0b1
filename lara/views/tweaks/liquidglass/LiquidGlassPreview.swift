@@ -93,18 +93,18 @@ struct NotificationBG: ViewModifier {
     
     func body(content: Content) -> AnyView {
         if lgFallback && !lgDisabled {
-            AnyView(content
+            return AnyView(content
                 .background(Color(.systemGray))
                 .clipShape(.rect(cornerRadius: 26)))
         } else if lgDisabled {
-            AnyView(content
+            return AnyView(content
                 .background(.black)
                 .clipShape(.rect(cornerRadius: 26)))
         } else if #available(iOS 19.0, *) {
-            AnyView(content
+            return AnyView(content
                 .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 26)))
         } else {
-            AnyView(content)
+            return AnyView(content)
         }
     }
 }
