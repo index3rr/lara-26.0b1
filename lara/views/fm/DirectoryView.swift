@@ -149,8 +149,13 @@ struct santanderdirview: View {
             } else {
                 Section {
                     ForEach(model.shownitems) { entry in
-                        Button {
-                            nav.stack.append(SantanderNavItem(path: entry.path, isdir: entry.isdir))
+                        NavigationLink {
+                            if entry.isdir {
+                                santanderdirview(item: entry, readsbx: readsbx, writevfs: writevfs)
+                                    .environmentObject(nav)
+                            } else {
+                                santanderfileview(item: entry, readsbx: readsbx, writevfs: writevfs)
+                            }
                         } label: {
                             row(entry: entry)
                         }
@@ -308,13 +313,13 @@ struct santanderdirview: View {
                     }
 
                     Button {
-                        nav.go(SantanderNavItem(path: "/", isdir: true))
+                        nav.go(santanderitem(path: "/", isdir: true))
                     } label: {
                         Label("Go to Root", systemImage: "externaldrive")
                     }
 
                     Button {
-                        nav.go(SantanderNavItem(path: NSHomeDirectory(), isdir: true))
+                        nav.go(santanderitem(path: NSHomeDirectory(), isdir: true))
                     } label: {
                         Label("Go to Home", systemImage: "house")
                     }

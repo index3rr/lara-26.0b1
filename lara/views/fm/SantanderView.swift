@@ -60,11 +60,6 @@ struct SantanderView: View {
     }
 }
 
-struct SantanderNavItem: Hashable {
-    let path: String
-    let isdir: Bool
-}
-
 private struct santanderroot: View {
     let readsbx: Bool
     let writevfs: Bool
@@ -74,36 +69,29 @@ private struct santanderroot: View {
     init(startpath: String, readsbx: Bool, writevfs: Bool) {
         self.readsbx = readsbx
         self.writevfs = writevfs
-        _nav = StateObject(wrappedValue: santandernav(root: SantanderNavItem(path: startpath, isdir: true)))
+        _nav = StateObject(wrappedValue: santandernav(root: santanderitem(path: startpath, isdir: true)))
     }
 
     var body: some View {
-        NavigationStack(path: $nav.stack) {
-            santanderdirview(item: santanderitem(path: nav.root.path, isdir: nav.root.isdir), readsbx: readsbx, writevfs: writevfs)
+        NavigationStack {
+            santanderdirview(item: nav.root, readsbx: readsbx, writevfs: writevfs)
                 .environmentObject(nav)
-                .navigationDestination(for: SantanderNavItem.self) { item in
-                    if item.isdir {
-                        santanderdirview(item: santanderitem(path: item.path, isdir: true), readsbx: readsbx, writevfs: writevfs)
-                            .environmentObject(nav)
-                    } else {
-                        santanderfileview(item: santanderitem(path: item.path, isdir: false), readsbx: readsbx, writevfs: writevfs)
-                    }
-                }
         }
+        .id(nav.generation)
     }
 }
 
 final class santandernav: ObservableObject {
-    @Published var root: SantanderNavItem
-    @Published var stack: [SantanderNavItem] = []
+    @Published var root: santanderitem
+    @Published var generation = 0
 
-    init(root: SantanderNavItem) {
+    init(root: santanderitem) {
         self.root = root
     }
 
-    func go(_ item: SantanderNavItem) {
+    func go(_ item: santanderitem) {
         root = item
-        stack.removeAll()
+        generation += 1
     }
 }
 
