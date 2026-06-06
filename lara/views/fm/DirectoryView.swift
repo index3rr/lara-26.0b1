@@ -124,7 +124,9 @@ private struct SantanderDirBody: View {
     @StateObject private var model: santanderdirmodel
     @State private var query = ""
     @State private var showimport = false
-    @State private var msg: santandermsg?
+    @State private var showAlert = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
     @State private var infoitem: santanderitem?
     @State private var chmoditem: santanderitem?
     @State private var chownitem: santanderitem?
@@ -262,7 +264,7 @@ private struct SantanderDirBody: View {
                         if readsbx {
                             showimport = true
                         } else {
-                            msg = santandermsg(title: "Upload Unavailable", text: "Upload is only supported in SBX mode.")
+                            alertTitle = "Upload Unavailable"; alertMessage = "Upload is only supported in SBX mode."; showAlert = true
                         }
                     } label: {
                         Label("Upload File", systemImage: "square.and.arrow.down")
@@ -272,7 +274,7 @@ private struct SantanderDirBody: View {
                         if readsbx {
                             shownewfolder = true
                         } else {
-                            msg = santandermsg(title: "New Folder Unavailable", text: "Creating folders is only supported in SBX mode.")
+                            alertTitle = "New Folder Unavailable"; alertMessage = "Creating folders is only supported in SBX mode."; showAlert = true
                         }
                     } label: {
                         Label("New Folder", systemImage: "folder.badge.plus")
@@ -282,7 +284,7 @@ private struct SantanderDirBody: View {
                         if readsbx {
                             shownewfile = true
                         } else {
-                            msg = santandermsg(title: "Create File Unavailable", text: "Creating files is only supported in SBX mode.")
+                            alertTitle = "Create File Unavailable"; alertMessage = "Creating files is only supported in SBX mode."; showAlert = true
                         }
                     } label: {
                         Label("Create File", systemImage: "doc.badge.plus")
@@ -344,11 +346,13 @@ private struct SantanderDirBody: View {
                 guard let url = urls.first else { return }
                 upload(url)
             case .failure(let err):
-                msg = santandermsg(title: "Upload Failed", text: err.localizedDescription)
+                alertTitle = "Upload Failed"; alertMessage = err.localizedDescription; showAlert = true
             }
         }
-        .alert(item: $msg) { msg in
-            Alert(title: Text(msg.title), message: Text(msg.text), dismissButton: .default(Text("OK")))
+        .alert(alertTitle, isPresented: $showAlert) {
+            Button("OK") { }
+        } message: {
+            Text(alertMessage)
         }
         .alert("Delete", isPresented: Binding(get: { delitem != nil }, set: { if !$0 { delitem = nil } })) {
             Button("Cancel", role: .cancel) {
@@ -380,14 +384,14 @@ private struct SantanderDirBody: View {
             santanderchmodsheet(item: entry) { mode in
                 santanderfs.clearImmutableIfPossible(atPath: entry.path)
                 let ok = entry.path.withCString { apfs_mod($0, mode) == 0 }
-                msg = santandermsg(title: "Chmod", text: ok ? "Operation completed." : "Operation failed.")
+                alertTitle = "Chmod"; alertMessage = ok ? "Operation completed." : "Operation failed."; showAlert = true
             }
         }
         .sheet(item: $chownitem) { entry in
             santanderchownsheet(item: entry) { uid, gid in
                 santanderfs.clearImmutableIfPossible(atPath: entry.path)
                 let ok = entry.path.withCString { apfs_own($0, uid, gid) == 0 }
-                msg = santandermsg(title: "Chown", text: ok ? "Operation completed." : "Operation failed.")
+                alertTitle = "Chown"; alertMessage = ok ? "Operation completed." : "Operation failed."; showAlert = true
             }
         }
         .alert("File Manager Info", isPresented: $showvfsinfo) {
@@ -458,29 +462,29 @@ private struct SantanderDirBody: View {
 
     private func copy(_ entry: santanderitem) {
         clip.item = santanderclipitem(path: entry.path, isdir: entry.isdir, name: entry.name)
-        msg = santandermsg(title: "Copied", text: entry.name)
+        alertTitle = "Copied"; alertMessage = entry.name; showAlert = true
     }
 
     private func rename(_ entry: santanderitem, newname: String) {
         guard readsbx else {
-            msg = santandermsg(title: "Rename Unavailable", text: "Rename is only supported in SBX mode.")
+            alertTitle = "Rename Unavailable"; alertMessage = "Rename is only supported in SBX mode."; showAlert = true
             return
         }
 
         let trimmed = newname.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
-            msg = santandermsg(title: "Rename Failed", text: "Name cannot be empty.")
+            alertTitle = "Rename Failed"; alertMessage = "Name cannot be empty."; showAlert = true
             return
         }
         guard !trimmed.contains("/") else {
-            msg = santandermsg(title: "Rename Failed", text: "Name cannot contain '/'.")
+            alertTitle = "Rename Failed"; alertMessage = "Name cannot contain '/'."; showAlert = true
             return
         }
         guard trimmed != entry.name else { return }
 
         let dest = ((entry.path as NSString).deletingLastPathComponent as NSString).appendingPathComponent(trimmed)
         guard !FileManager.default.fileExists(atPath: dest) else {
-            msg = santandermsg(title: "Rename Failed", text: "A file with that name already exists.")
+            alertTitle = "Rename Failed"; alertMessage = "A file with that name already exists."; showAlert = true
             return
         }
 
@@ -489,29 +493,29 @@ private struct SantanderDirBody: View {
             try FileManager.default.moveItem(atPath: entry.path, toPath: dest)
             model.load(query: query.trimmingCharacters(in: .whitespacesAndNewlines))
         } catch {
-            msg = santandermsg(title: "Rename Failed", text: error.localizedDescription)
+            alertTitle = "Rename Failed"; alertMessage = error.localizedDescription; showAlert = true
         }
     }
 
     private func newfolder(name: String) {
         guard readsbx else {
-            msg = santandermsg(title: "New Folder Unavailable", text: "Creating folders is only supported in SBX mode.")
+            alertTitle = "New Folder Unavailable"; alertMessage = "Creating folders is only supported in SBX mode."; showAlert = true
             return
         }
 
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
-            msg = santandermsg(title: "New Folder Failed", text: "Name cannot be empty.")
+            alertTitle = "New Folder Failed"; alertMessage = "Name cannot be empty."; showAlert = true
             return
         }
         guard !trimmed.contains("/") else {
-            msg = santandermsg(title: "New Folder Failed", text: "Name cannot contain '/'.")
+            alertTitle = "New Folder Failed"; alertMessage = "Name cannot contain '/'."; showAlert = true
             return
         }
 
         let dest = (item.path as NSString).appendingPathComponent(trimmed)
         guard !FileManager.default.fileExists(atPath: dest) else {
-            msg = santandermsg(title: "New Folder Failed", text: "A file with that name already exists.")
+            alertTitle = "New Folder Failed"; alertMessage = "A file with that name already exists."; showAlert = true
             return
         }
 
@@ -519,29 +523,29 @@ private struct SantanderDirBody: View {
             try FileManager.default.createDirectory(atPath: dest, withIntermediateDirectories: false, attributes: nil)
             model.load(query: query.trimmingCharacters(in: .whitespacesAndNewlines))
         } catch {
-            msg = santandermsg(title: "New Folder Failed", text: error.localizedDescription)
+            alertTitle = "New Folder Failed"; alertMessage = error.localizedDescription; showAlert = true
         }
     }
 
     private func newfile(name: String, text: String) {
         guard readsbx else {
-            msg = santandermsg(title: "Create File Unavailable", text: "Creating files is only supported in SBX mode.")
+            alertTitle = "Create File Unavailable"; alertMessage = "Creating files is only supported in SBX mode."; showAlert = true
             return
         }
 
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
-            msg = santandermsg(title: "Create File Failed", text: "Name cannot be empty.")
+            alertTitle = "Create File Failed"; alertMessage = "Name cannot be empty."; showAlert = true
             return
         }
         guard !trimmed.contains("/") else {
-            msg = santandermsg(title: "Create File Failed", text: "Name cannot contain '/'.")
+            alertTitle = "Create File Failed"; alertMessage = "Name cannot contain '/'."; showAlert = true
             return
         }
 
         let dest = (item.path as NSString).appendingPathComponent(trimmed)
         guard !FileManager.default.fileExists(atPath: dest) else {
-            msg = santandermsg(title: "Create File Failed", text: "A file with that name already exists.")
+            alertTitle = "Create File Failed"; alertMessage = "A file with that name already exists."; showAlert = true
             return
         }
 
@@ -549,19 +553,19 @@ private struct SantanderDirBody: View {
             try Data(text.utf8).write(to: URL(fileURLWithPath: dest), options: .atomic)
             model.load(query: query.trimmingCharacters(in: .whitespacesAndNewlines))
         } catch {
-            msg = santandermsg(title: "Create File Failed", text: error.localizedDescription)
+            alertTitle = "Create File Failed"; alertMessage = error.localizedDescription; showAlert = true
         }
     }
 
     private func paste(replace: Bool) {
         guard readsbx else {
-            msg = santandermsg(title: "Paste Unavailable", text: "Paste is only supported in SBX mode.")
+            alertTitle = "Paste Unavailable"; alertMessage = "Paste is only supported in SBX mode."; showAlert = true
             return
         }
         guard let clipitem = clip.item else { return }
 
         if clipitem.isdir && (item.path == clipitem.path || item.path.hasPrefix(clipitem.path + "/")) {
-            msg = santandermsg(title: "Paste Failed", text: "Cannot paste a folder into itself.")
+            alertTitle = "Paste Failed"; alertMessage = "Cannot paste a folder into itself."; showAlert = true
             return
         }
 
@@ -575,7 +579,7 @@ private struct SantanderDirBody: View {
             try FileManager.default.copyItem(atPath: clipitem.path, toPath: dest)
             model.load(query: query.trimmingCharacters(in: .whitespacesAndNewlines))
         } catch {
-            msg = santandermsg(title: "Paste Failed", text: error.localizedDescription)
+            alertTitle = "Paste Failed"; alertMessage = error.localizedDescription; showAlert = true
         }
     }
 
@@ -587,18 +591,18 @@ private struct SantanderDirBody: View {
             if ok {
                 model.load(query: query.trimmingCharacters(in: .whitespacesAndNewlines))
             } else {
-                msg = santandermsg(title: "Replace Failed", text: "VFS overwrite failed.")
+                alertTitle = "Replace Failed"; alertMessage = "VFS overwrite failed."; showAlert = true
             }
             return
         }
 
         guard readsbx else {
-            msg = santandermsg(title: "Replace Unavailable", text: "Replace is only supported in SBX mode.")
+            alertTitle = "Replace Unavailable"; alertMessage = "Replace is only supported in SBX mode."; showAlert = true
             return
         }
 
         if clipitem.isdir && (entry.path == clipitem.path || entry.path.hasPrefix(clipitem.path + "/")) {
-            msg = santandermsg(title: "Replace Failed", text: "Cannot replace with a folder into itself.")
+            alertTitle = "Replace Failed"; alertMessage = "Cannot replace with a folder into itself."; showAlert = true
             return
         }
 
@@ -609,13 +613,13 @@ private struct SantanderDirBody: View {
             try FileManager.default.copyItem(atPath: clipitem.path, toPath: entry.path)
             model.load(query: query.trimmingCharacters(in: .whitespacesAndNewlines))
         } catch {
-            msg = santandermsg(title: "Replace Failed", text: error.localizedDescription)
+            alertTitle = "Replace Failed"; alertMessage = error.localizedDescription; showAlert = true
         }
     }
 
     private func delete(_ entry: santanderitem) {
         guard readsbx else {
-            msg = santandermsg(title: "Delete Unavailable", text: "Delete is only supported in SBX mode.")
+            alertTitle = "Delete Unavailable"; alertMessage = "Delete is only supported in SBX mode."; showAlert = true
             return
         }
 
@@ -623,22 +627,22 @@ private struct SantanderDirBody: View {
             try santanderfs.removeItemClearingImmutable(atPath: entry.path)
             model.load(query: query.trimmingCharacters(in: .whitespacesAndNewlines))
         } catch {
-            msg = santandermsg(title: "Delete Failed", text: error.localizedDescription)
+            alertTitle = "Delete Failed"; alertMessage = error.localizedDescription; showAlert = true
         }
     }
 
     @MainActor
     private func share(_ entry: santanderitem) {
         guard readsbx else {
-            msg = santandermsg(title: "Share Unavailable", text: "Share is only supported in SBX mode.")
+            alertTitle = "Share Unavailable"; alertMessage = "Share is only supported in SBX mode."; showAlert = true
             return
         }
         guard !entry.isdir else {
-            msg = santandermsg(title: "Share Unavailable", text: "Sharing folders is not supported.")
+            alertTitle = "Share Unavailable"; alertMessage = "Sharing folders is not supported."; showAlert = true
             return
         }
         guard FileManager.default.isReadableFile(atPath: entry.path) else {
-            msg = santandermsg(title: "Share Failed", text: "File is not readable.")
+            alertTitle = "Share Failed"; alertMessage = "File is not readable."; showAlert = true
             return
         }
 
@@ -647,11 +651,11 @@ private struct SantanderDirBody: View {
 
     private func upload(_ url: URL) {
         guard readsbx else {
-            msg = santandermsg(title: "Upload Unavailable", text: "Upload is only supported in SBX mode.")
+            alertTitle = "Upload Unavailable"; alertMessage = "Upload is only supported in SBX mode."; showAlert = true
             return
         }
         guard url.startAccessingSecurityScopedResource() else {
-            msg = santandermsg(title: "Upload Failed", text: "Unable to access selected file.")
+            alertTitle = "Upload Failed"; alertMessage = "Unable to access selected file."; showAlert = true
             return
         }
         defer { url.stopAccessingSecurityScopedResource() }
@@ -666,7 +670,7 @@ private struct SantanderDirBody: View {
             try FileManager.default.copyItem(at: url, to: URL(fileURLWithPath: dest))
             model.load(query: query.trimmingCharacters(in: .whitespacesAndNewlines))
         } catch {
-            msg = santandermsg(title: "Upload Failed", text: error.localizedDescription)
+            alertTitle = "Upload Failed"; alertMessage = error.localizedDescription; showAlert = true
         }
     }
 }
