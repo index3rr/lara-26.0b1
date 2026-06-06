@@ -80,10 +80,8 @@ struct ActionBG: ViewModifier {
             }
         } else {
             if #available(iOS 19.0, *) {
-                Group {
-                    content
-                }
-                .glassEffect(.regular, in: Capsule())
+                content
+                    .glassEffect(.clear.interactive(), in: Capsule())
             }
         }
     }
@@ -106,11 +104,26 @@ struct NotificationBG: ViewModifier {
             }
         } else {
             if #available(iOS 19.0, *) {
-                Group {
-                    content
-                }
-                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 26))
+                content
+                    .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 26))
             }
         }
+    }
+}
+
+// Stub implementation to allow .glassEffect to compile
+public struct LiquidGlassStyle {
+    public static var clear: LiquidGlassStyle { LiquidGlassStyle() }
+    public static var regular: LiquidGlassStyle { LiquidGlassStyle() }
+    
+    public func interactive() -> LiquidGlassStyle {
+        return self
+    }
+}
+
+extension View {
+    public func glassEffect<S: Shape>(_ style: LiquidGlassStyle, in shape: S) -> some View {
+        // Fallback for the preview so it compiles
+        self.background(.ultraThinMaterial, in: shape)
     }
 }
