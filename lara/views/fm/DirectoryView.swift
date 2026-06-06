@@ -132,7 +132,7 @@ struct santanderdirview: View {
     }
 
     var body: some View {
-        List {
+        AnyView(List {
             if model.loading && model.shownitems.isEmpty {
                 Section {
                     HStack {
@@ -385,6 +385,7 @@ struct santanderdirview: View {
         } message: {
             Text("This browser is powered by vfs namecache lookups, not full directory enumeration. Some folders may appear empty unless entries are already cached. Symlinks may also be shown as files even when their targets are directories.")
         }
+        )
         .sheet(isPresented: $shownewfolder) {
             santandernamesheet(
                 title: "New Folder",

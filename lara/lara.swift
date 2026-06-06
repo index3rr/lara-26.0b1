@@ -25,7 +25,6 @@ struct lara: App {
     @AppStorage("showFMInTabs") private var showfmintabs: Bool = true
     @AppStorage("logsdisplaymode") private var logsdisplaymode: logsdisplaymode = .toolbar
     @State private var selectedTabIndex: Int = 0
-    @State private var appInitialized: Bool = false
     
     init() {
         #if DEBUG
@@ -46,9 +45,7 @@ struct lara: App {
     
     var body: some Scene {
         WindowGroup {
-            ZStack {
-                // Lazy load tabs to reduce metadata resolution at startup
-                // Workaround for iOS 26 beta Swift runtime bug in type metadata resolution
+                ZStack {
                 TabView(selection: $selectedTabIndex) {
                     ContentView()
                         .tabItem {
@@ -56,8 +53,7 @@ struct lara: App {
                         }
                         .tag(0)
                     
-                    // Defer TweaksView construction until needed or after init completes
-                    if selectedTabIndex == 1 || appInitialized {
+                    if selectedTabIndex == 1 {
                         TweaksView(mgr: mgr)
                             .tabItem {
                                 Image(systemName: "ant.fill")
@@ -71,8 +67,7 @@ struct lara: App {
                             .tag(1)
                     }
                     
-                    // Defer file manager if enabled
-                    if showfmintabs && (selectedTabIndex == 2 || appInitialized) {
+                    if showfmintabs && selectedTabIndex == 2 {
                         SantanderView(startPath: "/")
                             .tabItem {
                                 Image(systemName: "folder.fill")
@@ -80,8 +75,7 @@ struct lara: App {
                             .tag(2)
                     }
                     
-                    // Defer logs view
-                    if logsdisplaymode == .tabs && (selectedTabIndex == 3 || appInitialized) {
+                    if logsdisplaymode == .tabs && selectedTabIndex == 3 {
                         LogsView(logger: globallogger)
                             .tabItem {
                                 Image(systemName: "terminal")
@@ -116,10 +110,7 @@ struct lara: App {
                     // thanks
                     mgr.hasOffsets = emergencyfixfunctiontobereplacedlateronquestionmark()
                     
-                    // Mark initialization complete to allow lazy views to load
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        appInitialized = true
-                    }
+                    globallogger.capture()
                 } else {
                     Alertinator.shared.alert(title: "This device is not supported!", body: "We apologize, but this device is currently not supported by Lara. Possible reasons: \n- You are on an u[...]")
                 }
