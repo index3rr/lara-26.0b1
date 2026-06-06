@@ -36,7 +36,7 @@ struct DarkBoardExploreView: View {
         }
         .onChange(of: searchTerm)     { _ in updateDisplayedThemes() }
         .onChange(of: filter)         { _ in updateDisplayedThemes() }
-        .onChange(of: gallery.themes) { _ in updateDisplayedThemes() }
+        .onReceive(gallery.$themes) { _ in updateDisplayedThemes() }
         .alert(item: $alert) { a in
             Alert(title: Text("Theme Gallery"), message: Text(a.message), dismissButton: .default(Text("OK")))
         }
