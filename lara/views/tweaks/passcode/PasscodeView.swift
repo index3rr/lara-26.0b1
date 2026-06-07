@@ -125,7 +125,8 @@ struct PasscodeView: View {
     @ObservedObject var mgr: laramgr
     
     @State private var selectedKeys: [String: Data] = [:]
-    @State private var showImagePicker: String?
+    @State private var showImagePicker = false
+    @State private var selectedKeyId: String?
     @State private var showFilePicker = false
     @State private var processing = false
     @State private var statusMessage: String = ""
@@ -201,7 +202,7 @@ struct PasscodeView: View {
                             if let keyId,
                                let key = passcodeKeyMap[keyId] {
 
-                                PasscodeKeyButton(key: key, imageData: selectedKeys[key.id], onSelect: { showImagePicker = key.id })
+                                PasscodeKeyButton(key: key, imageData: selectedKeys[key.id], onSelect: { selectedKeyId = key.id; showImagePicker = true })
                             } else {
                                 Color.clear
                                     .aspectRatio(1, contentMode: .fit)
@@ -234,8 +235,10 @@ struct PasscodeView: View {
             .headerProminence(.increased)
             .navigationTitle("Passcode Theme")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(item: $showImagePicker) { keyId in
-                ImagePicker(imageData: $selectedKeys[keyId])
+            .sheet(isPresented: $showImagePicker) {
+                if let keyId = selectedKeyId {
+                    ImagePicker(imageData: $selectedKeys[keyId])
+                }
             }
             .fileImporter(
                 isPresented: $showFilePicker,

@@ -11,7 +11,8 @@ struct DarkBoardExploreView: View {
 
     @State private var filter: IconThemeGalleryFilter = .random
     @State private var searchTerm = ""
-    @State private var alert: DarkBoardExploreAlert?
+    @State private var showAlert = false
+    @State private var alertMessage = ""
     @State private var displayedThemes: [GalleryTheme] = []
 
     var body: some View {
@@ -37,8 +38,8 @@ struct DarkBoardExploreView: View {
         .onChange(of: searchTerm)     { _ in updateDisplayedThemes() }
         .onChange(of: filter)         { _ in updateDisplayedThemes() }
         .onReceive(gallery.$themes) { _ in updateDisplayedThemes() }
-        .alert(item: $alert) { a in
-            Alert(title: Text("Theme Gallery"), message: Text(a.message), dismissButton: .default(Text("OK")))
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text("Theme Gallery"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
     }
 
@@ -119,9 +120,11 @@ struct DarkBoardExploreView: View {
                         Task {
                             do {
                                 try await gallery.downloadAndImport(theme)
-                                alert = DarkBoardExploreAlert(message: "Imported \(theme.name).")
+                                alertMessage = "Imported \(theme.name)."
+                                showAlert = true
                             } catch {
-                                alert = DarkBoardExploreAlert(message: error.localizedDescription)
+                                alertMessage = error.localizedDescription
+                                showAlert = true
                             }
                         }
                     }

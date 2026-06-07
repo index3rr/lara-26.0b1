@@ -27,7 +27,9 @@ struct santanderfileview: View {
     @State private var text = ""
     @State private var original = ""
     @State private var query = ""
-    @State private var msg: santandermsg?
+    @State private var showAlert = false
+    @State private var alertTitle = ""
+    @State private var alertText = ""
     @State private var exporturl: URL?
     @State private var showexport = false
 
@@ -106,8 +108,8 @@ struct santanderfileview: View {
                 }
             }
         }
-        .alert(item: $msg) { msg in
-            Alert(title: Text(msg.title), message: Text(msg.text), dismissButton: .default(Text("OK")))
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text(alertTitle), message: Text(alertText), dismissButton: .default(Text("OK")))
         }
         .fileExporter(
             isPresented: $showexport,
@@ -116,7 +118,9 @@ struct santanderfileview: View {
             defaultFilename: item.name
         ) { result in
             if case .failure(let err) = result {
-                msg = santandermsg(title: "Export Failed", text: err.localizedDescription)
+                alertTitle = "Export Failed"
+                alertText = err.localizedDescription
+                showAlert = true
             }
         }
     }
@@ -151,7 +155,9 @@ struct santanderfileview: View {
 
     private func startedit() {
         guard editable else {
-            msg = santandermsg(title: "Edit Unavailable", text: "This file type isn't editable in the viewer.")
+            alertTitle = "Edit Unavailable"
+            alertText = "This file type isn't editable in the viewer."
+            showAlert = true
             return
         }
         editing = true
@@ -175,10 +181,9 @@ struct santanderfileview: View {
                     options: 0
                 )
             } catch {
-                msg = santandermsg(
-                    title: "Save Failed",
-                    text: "Invalid plist format."
-                )
+                alertTitle = "Save Failed"
+                alertText = "Invalid plist format."
+                showAlert = true
                 return
             }
         } else {
@@ -190,12 +195,16 @@ struct santanderfileview: View {
             editing = false
             original = text
             preview = .text(text, true)
-            msg = santandermsg(title: "Saved", text: "File updated.")
+            alertTitle = "Saved"
+            alertText = "File updated."
+            showAlert = true
             if !readsbx {
                 exporturl = santanderfs.preparetemp(item: item, readsbx: readsbx, maxbytes: 128 * 1024 * 1024)
             }
         } else {
-            msg = santandermsg(title: "Save Failed", text: writevfs ? "VFS overwrite failed." : "Unable to write file.")
+            alertTitle = "Save Failed"
+            alertText = writevfs ? "VFS overwrite failed." : "Unable to write file."
+            showAlert = true
         }
     }
 

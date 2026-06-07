@@ -27,7 +27,8 @@ struct DarkBoardView: View {
     @ObservedObject private var mgr = laramgr.shared
 
     @State private var showImporter = false
-    @State private var alert: DarkBoardAlert?
+    @State private var showAlert = false
+    @State private var alertMessage = ""
     @State private var pendingImportURL: URL?
 
     private let previewBundleIDs = [
@@ -92,8 +93,8 @@ struct DarkBoardView: View {
         .sheet(isPresented: $showImporter) {
             ThemeImportPicker(selectedURL: $pendingImportURL)
         }
-        .alert(item: $alert) { alert in
-            Alert(title: Text("DarkBoard"), message: Text(alert.message), dismissButton: .default(Text("OK")))
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text("DarkBoard"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
         .overlay {
             if manager.isApplying {
@@ -174,7 +175,8 @@ struct DarkBoardView: View {
 
     private func applyThemes() {
         guard mgr.sbxready else {
-            alert = DarkBoardAlert(message: "SBX is not initialized. Run the exploit, initialize SBX, then apply again.")
+            alertMessage = "SBX is not initialized. Run the exploit, initialize SBX, then apply again."
+            showAlert = true
             return
         }
 
@@ -183,31 +185,24 @@ struct DarkBoardView: View {
                 let errors = try manager.applyThemes()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                     if errors.isEmpty {
-                        alert = DarkBoardAlert(message: "Icons applied. Respring now. After reopening lara, initialize SBX again so the post-respring icon fixup can restore the original bundle files.")
+                        alertMessage = "Icons applied. Respring now. After reopening lara, initialize SBX again so the post-respring icon fixup can restore the original bundle files."
+                        showAlert = true
                     } else {
-                        alert = DarkBoardAlert(message: "Applied with some errors:\n\n" + errors.joined(separator: "\n\n"))
+                        alertMessage = "Applied with some errors:\n\n" + errors.joined(separator: "\n\n")
+                        showAlert = true
                     }
                 }
             } catch {
                 DispatchQueue.main.async {
-                    alert = DarkBoardAlert(message: error.localizedDescription)
+                    alertMessage = error.localizedDescription
+                    showAlert = true
                 }
             }
         }
-    }
-
-    private func handleImport(_ url: URL) {
-        let accessed = url.startAccessingSecurityScopedResource()
-        defer {
-            if accessed {
-                url.stopAccessingSecurityScopedResource()
-            }
-        }
-
-        do {
-            try manager.importTheme(from: url)
-        } catch {
-            alert = DarkBoardAlert(message: error.localizedDescription)
+        .onReceive(manager.$applyError) { error in
+            if let error {
+                alertMessage = error.localizedDescription
+                showAlert = true
         }
     }
 
@@ -215,7 +210,8 @@ struct DarkBoardView: View {
         do {
             try manager.removeTheme(theme)
         } catch {
-            alert = DarkBoardAlert(message: error.localizedDescription)
+            alertMessage = error.localizedDescription
+            showAlert = true
         }
     }
 
