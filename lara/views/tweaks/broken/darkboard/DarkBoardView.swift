@@ -199,8 +199,13 @@ struct DarkBoardView: View {
                 }
             }
         }
-        .onReceive(manager.$applyError) { error in
-            if let error {
+    }
+
+    private func handleImport(_ url: URL) {
+        do {
+            try manager.importTheme(from: url)
+        } catch {
+            DispatchQueue.main.async {
                 alertMessage = error.localizedDescription
                 showAlert = true
             }
