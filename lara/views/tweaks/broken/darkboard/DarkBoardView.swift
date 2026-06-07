@@ -203,6 +203,7 @@ struct DarkBoardView: View {
             if let error {
                 alertMessage = error.localizedDescription
                 showAlert = true
+            }
         }
     }
 
